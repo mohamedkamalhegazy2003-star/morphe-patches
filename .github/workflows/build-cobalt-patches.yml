@@ -26,7 +26,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ls patches/build/libs
-          JAR=$(ls patches/build/libs/*.jar | grep -v -- '-sources\|-javadoc' | head -1)
+          JAR=$(ls patches/build/libs/patches-*.mpp | head -1)
           gh release create "v1.0.${{ github.run_number }}" "$JAR" \
             --title "Cobalt patches ${{ github.run_number }}" \
             --notes "Morphe patches + Cobalt download mode" --target "${{ github.sha }}"
