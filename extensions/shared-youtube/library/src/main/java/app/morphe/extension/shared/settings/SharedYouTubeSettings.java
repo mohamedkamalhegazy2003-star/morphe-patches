@@ -106,7 +106,7 @@ public class SharedYouTubeSettings extends BaseSettings {
     public static final LongSetting EXTERNAL_POTOKEN_PROVIDER_EXPIRED_DIALOG_LAST_SHOWN = new LongSetting("morphe_external_potoken_provider_expired_dialog_last_shown", 0L, false, false);
 
     // Downloads
-    public static final EnumSetting<DownloadMode> DOWNLOAD_MODE = new EnumSetting<>("morphe_download_mode", DownloadMode.DEFAULT);
+    public static final EnumSetting<DownloadMode> DOWNLOAD_MODE = new EnumSetting<>("morphe_download_mode", DownloadMode.COBALT);
     // Cobalt download mode.
     public static final StringSetting COBALT_INSTANCE = new StringSetting("morphe_cobalt_instance", "https://cobalt.canine.tools", DOWNLOAD_MODE.availability(DownloadMode.COBALT));
     public static final StringSetting COBALT_API_KEY = new StringSetting("morphe_cobalt_api_key", "", DOWNLOAD_MODE.availability(DownloadMode.COBALT));
