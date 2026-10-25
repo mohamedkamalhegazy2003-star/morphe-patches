@@ -73,6 +73,10 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
             if (context == null) {
                 context = Utils.getActivity();
             }
+            if (SharedYouTubeSettings.DOWNLOAD_MODE.get() == DownloadMode.COBALT) {
+                app.morphe.extension.shared.patches.CobaltDownloader.download(context, url);
+                return;
+            }
             Context contextFinal = context;
             Logger.printDebug(() -> "Launching external downloader: " + videoId + " context: " + contextFinal);
 

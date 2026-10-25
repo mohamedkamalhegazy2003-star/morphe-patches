@@ -30,7 +30,8 @@ public final class DownloadsPatch {
      */
     public static boolean inAppDownloadButtonOnClick(String videoId) {
         try {
-            if (Settings.DOWNLOAD_MODE.get() != DownloadMode.EXTERNAL) {
+            DownloadMode mode = Settings.DOWNLOAD_MODE.get();
+            if (mode != DownloadMode.EXTERNAL && mode != DownloadMode.COBALT) {
                 return false;
             }
 

@@ -5,11 +5,13 @@
         <item>@string/morphe_download_mode_entry_default</item>
         <item>@string/morphe_download_mode_entry_in_app</item>
         <item>@string/morphe_download_mode_entry_external</item>
+        <item>@string/morphe_download_mode_entry_cobalt</item>
     </string-array>
     <string-array name="morphe_download_mode_entry_values">
         <item>DEFAULT</item>
         <item>IN_APP</item>
         <item>EXTERNAL</item>
+        <item>COBALT</item>
     </string-array>
 
     <!-- Since the 30fps looks bad, and the 2/5 second styles are not useful

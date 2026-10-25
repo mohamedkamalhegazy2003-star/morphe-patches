@@ -56,6 +56,13 @@ Second \"item\" text"</string>
     <string name="morphe_download_mode_entry_default">Default</string>
     <string name="morphe_download_mode_entry_in_app">Download in-app</string>
     <string name="morphe_download_mode_entry_external">External downloader</string>
+    <string name="morphe_download_mode_entry_cobalt">Cobalt (offline, no Premium)</string>
+    <string name="morphe_cobalt_instance_title">Cobalt instance URL</string>
+    <string name="morphe_cobalt_instance_summary">Address of the Cobalt server used for downloads, for example https://cobalt.canine.tools</string>
+    <string name="morphe_cobalt_api_key_title">Cobalt API key (optional)</string>
+    <string name="morphe_cobalt_api_key_summary">Only needed if your Cobalt instance requires a key</string>
+    <string name="morphe_cobalt_quality_title">Cobalt video quality</string>
+    <string name="morphe_cobalt_quality_summary">144, 240, 360, 480, 720, 1080, 1440, 2160 or max</string>
     <string name="morphe_external_downloader_name_title">Downloader package name</string>
     <string name="morphe_external_downloader_name_summary">Package name of your installed external downloader app</string>
     <string name="morphe_external_downloader_other_item_hint">Enter package name</string>

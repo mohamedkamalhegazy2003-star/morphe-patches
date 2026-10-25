@@ -19,5 +19,9 @@ public enum DownloadMode {
     /**
      * Videos are downloaded with an external downloader app.
      */
-    EXTERNAL
+    EXTERNAL,
+    /**
+     * Videos are downloaded by a Cobalt instance and saved to the phone (offline).
+     */
+    COBALT
 }
