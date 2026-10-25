@@ -110,6 +110,7 @@ public class SharedYouTubeSettings extends BaseSettings {
     // Cobalt download mode.
     public static final StringSetting COBALT_INSTANCE = new StringSetting("morphe_cobalt_instance", "https://cobalt.canine.tools", DOWNLOAD_MODE.availability(DownloadMode.COBALT));
     public static final StringSetting COBALT_API_KEY = new StringSetting("morphe_cobalt_api_key", "", DOWNLOAD_MODE.availability(DownloadMode.COBALT));
+    public static final BooleanSetting COBALT_ASK_FORMAT = new BooleanSetting("morphe_cobalt_ask_format", TRUE, DOWNLOAD_MODE.availability(DownloadMode.COBALT));
     public static final StringSetting COBALT_QUALITY = new StringSetting("morphe_cobalt_quality", "1080", DOWNLOAD_MODE.availability(DownloadMode.COBALT));
     // YouTube only.
     public static final BooleanSetting EXTERNAL_DOWNLOADER_OVERLAY_BUTTON = new BooleanSetting("morphe_external_downloader_overlay_button", FALSE, true);

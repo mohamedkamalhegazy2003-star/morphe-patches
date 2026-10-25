@@ -61,6 +61,8 @@ Second \"item\" text"</string>
     <string name="morphe_cobalt_instance_summary">Address of the Cobalt server used for downloads, for example https://cobalt.canine.tools</string>
     <string name="morphe_cobalt_api_key_title">Cobalt API key (optional)</string>
     <string name="morphe_cobalt_api_key_summary">Only needed if your Cobalt instance requires a key</string>
+    <string name="morphe_cobalt_ask_format_title">Ask format on every download</string>
+    <string name="morphe_cobalt_ask_format_summary">Shows a list to choose video quality, audio (MP3, OGG, WAV, OPUS) or video without sound</string>
     <string name="morphe_cobalt_quality_title">Cobalt video quality</string>
     <string name="morphe_cobalt_quality_summary">144, 240, 360, 480, 720, 1080, 1440, 2160 or max</string>
     <string name="morphe_external_downloader_name_title">Downloader package name</string>

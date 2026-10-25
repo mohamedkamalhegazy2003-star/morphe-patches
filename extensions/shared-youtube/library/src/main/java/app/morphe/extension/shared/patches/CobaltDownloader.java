@@ -1,5 +1,7 @@
 package app.morphe.extension.shared.patches;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
@@ -27,12 +29,41 @@ import app.morphe.extension.shared.settings.SharedYouTubeSettings;
 public final class CobaltDownloader {
     private static final String UA = "MorpheCobalt/1.0";
 
+    private static final String[] LABELS = {
+            "Video 1080p (MP4)",
+            "Video 720p (MP4)",
+            "Video 480p (MP4)",
+            "Video 4K / best (WebM)",
+            "Audio MP3",
+            "Audio OGG",
+            "Audio WAV",
+            "Audio OPUS",
+            "Audio best",
+            "Video without sound"
+    };
+
     public static void download(Context context, String videoUrl) {
         final Context ctx = context != null ? context : Utils.getContext();
+        if (SharedYouTubeSettings.COBALT_ASK_FORMAT.get()) {
+            Activity activity = Utils.getActivity();
+            if (activity != null) {
+                Utils.runOnMainThread(() -> new AlertDialog.Builder(activity)
+                        .setTitle("Cobalt download")
+                        .setItems(LABELS, (d, which) -> start(ctx, videoUrl, which))
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show());
+                return;
+            }
+        }
+        start(ctx, videoUrl, -1);
+    }
+
+    /** @param choice index into LABELS, or -1 to use the quality from settings. */
+    private static void start(Context ctx, String videoUrl, int choice) {
         Utils.showToastShort("Cobalt: preparing download...");
         Utils.runOnBackgroundThread(() -> {
             try {
-                String error = request(ctx, videoUrl);
+                String error = request(ctx, videoUrl, choice);
                 if (error == null) {
                     Utils.runOnMainThread(() -> Utils.showToastLong("Download started. Saved in Movies/Cobalt"));
                 } else {
@@ -45,8 +76,7 @@ public final class CobaltDownloader {
         });
     }
 
-    /** @return null on success, otherwise a short error text. */
-    private static String request(Context ctx, String videoUrl) throws Exception {
+    private static String request(Context ctx, String videoUrl, int choice) throws Exception {
         String instance = SharedYouTubeSettings.COBALT_INSTANCE.get().trim();
         while (instance.endsWith("/")) instance = instance.substring(0, instance.length() - 1);
         if (instance.isEmpty()) return "instance URL is empty";
@@ -59,6 +89,22 @@ public final class CobaltDownloader {
         body.put("videoQuality", quality);
         body.put("downloadMode", "auto");
         body.put("youtubeVideoCodec", "h264");
+        switch (choice) {
+            case 0: body.put("videoQuality", "1080"); break;
+            case 1: body.put("videoQuality", "720"); break;
+            case 2: body.put("videoQuality", "480"); break;
+            case 3:
+                body.put("videoQuality", "max");
+                body.put("youtubeVideoCodec", "vp9");
+                break;
+            case 4: audio(body, "mp3"); break;
+            case 5: audio(body, "ogg"); break;
+            case 6: audio(body, "wav"); break;
+            case 7: audio(body, "opus"); break;
+            case 8: audio(body, "best"); break;
+            case 9: body.put("downloadMode", "mute"); break;
+            default: break;
+        }
         body.put("filenameStyle", "basic");
 
         HttpURLConnection c = (HttpURLConnection) new URL(instance + "/").openConnection();
@@ -111,6 +157,11 @@ public final class CobaltDownloader {
             default:
                 return status.isEmpty() ? "HTTP " + code : status;
         }
+    }
+
+    private static void audio(JSONObject body, String format) throws Exception {
+        body.put("downloadMode", "audio");
+        body.put("audioFormat", format);
     }
 
     private static void enqueue(Context ctx, String url, String filename) {
