@@ -38,6 +38,7 @@ public final class ShortsDownloadButton {
             activityRef = new WeakReference<>(activity);
             button = null; // A new activity needs a new view.
             LensSearchButton.initialize(activity);
+            FastAnimationsPatch.apply();
             if (!observerAdded) {
                 observerAdded = true;
                 ShortsPlayerState.getOnChange().addObserver((Boolean open) -> {
