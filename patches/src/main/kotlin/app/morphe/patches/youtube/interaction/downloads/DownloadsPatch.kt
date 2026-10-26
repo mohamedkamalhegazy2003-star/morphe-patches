@@ -10,6 +10,7 @@
 
 package app.morphe.patches.youtube.interaction.downloads
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.patch.bytecodePatch
@@ -30,6 +31,7 @@ import app.morphe.patches.youtube.misc.settings.PreferenceScreen
 import app.morphe.patches.youtube.misc.settings.settingsPatch
 import app.morphe.patches.youtube.misc.spoof.spoofVideoStreamsPatch
 import app.morphe.patches.youtube.shared.Constants.COMPATIBILITY_YOUTUBE
+import app.morphe.patches.youtube.shared.YouTubeActivityOnCreateFingerprint
 import app.morphe.patches.youtube.video.information.videoInformationPatch
 import app.morphe.util.getReference
 import app.morphe.util.registersUsed
@@ -106,6 +108,13 @@ val downloadsPatch = bytecodePatch(
 
     execute {
         initializeTopControl(EXTENSION_BUTTON)
+
+        // Download button over the Shorts player.
+        YouTubeActivityOnCreateFingerprint.method.addInstruction(
+            0,
+            "invoke-static/range { p0 .. p0 }, Lapp/morphe/extension/youtube/patches/ShortsDownloadButton;->" +
+                "initialize(Landroid/app/Activity;)V"
+        )
 
         OfflineVideoEndpointFingerprint.method.apply {
             addInstructionsWithLabels(
