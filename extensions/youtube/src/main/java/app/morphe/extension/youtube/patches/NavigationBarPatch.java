@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.WindowInsets;
 import android.widget.ImageView;
@@ -130,6 +131,9 @@ public final class NavigationBarPatch {
      * Injection point.
      */
     public static void navigationTabCreated(NavigationBar.NavigationButton button, View tabView) {
+        if (button == NavigationBar.NavigationButton.HOME) {
+            homeTabRef = new WeakReference<>(tabView);
+        }
         if (SHOW_SEARCH_BUTTON && button == NavigationBar.NavigationButton.SEARCH) {
             Utils.runOnMainThread(() -> tabView.setOnClickListener(openSearchBarOnClickListener));
             return;
@@ -514,14 +518,79 @@ public final class NavigationBarPatch {
         return newList;
     }
 
-    /** Official YouTube "Music" channel (the Music section of YouTube). */
+    private static WeakReference<View> homeTabRef = new WeakReference<>(null);
+
+    /** Official YouTube "Music" channel, used only if the Music chip of the Home feed is not found. */
     private static final String YOUTUBE_MUSIC_CHANNEL_URL =
             "https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ";
 
+    /**
+     * Opens the Home tab and selects the "Music" filter chip at the top of the feed.
+     */
     private static void openYouTubeMusic(Context context) {
         try {
+            View home = homeTabRef.get();
+            if (home != null) {
+                home.performClick();
+            }
+            View root = context instanceof Activity a ? a.getWindow().getDecorView() : null;
+            if (root == null) {
+                openMusicChannel(context);
+                return;
+            }
+            final long[] delays = {400, 900, 1600, 2600};
+            for (int i = 0; i < delays.length; i++) {
+                final boolean last = i == delays.length - 1;
+                Utils.runOnMainThreadDelayed(() -> {
+                    if (musicChipClicked) return;
+                    View chip = findViewByLabel(root, "Music");
+                    if (chip != null) {
+                        musicChipClicked = true;
+                        chip.performClick();
+                    } else if (last) {
+                        openMusicChannel(context);
+                    }
+                }, delays[i]);
+            }
+            musicChipClicked = false;
+        } catch (Exception ex) {
+            Logger.printException(() -> "openYouTubeMusic failure", ex);
+        }
+    }
+
+    private static volatile boolean musicChipClicked;
+
+    @Nullable
+    private static View findViewByLabel(View view, String label) {
+        if (view == null || view.getVisibility() != View.VISIBLE) return null;
+        CharSequence desc = view.getContentDescription();
+        CharSequence text = view instanceof TextView tv ? tv.getText() : null;
+        if (view.isClickable() || view.getParent() instanceof View) {
+            if ((desc != null && desc.toString().trim().equalsIgnoreCase(label))
+                    || (text != null && text.toString().trim().equalsIgnoreCase(label))) {
+                // Use the closest clickable parent for text labels.
+                View target = view;
+                while (!target.isClickable() && target.getParent() instanceof View p) target = p;
+                // Ignore the bottom navigation tab, which has the same label.
+                int[] loc = new int[2];
+                target.getLocationOnScreen(loc);
+                int screenHeight = view.getResources().getDisplayMetrics().heightPixels;
+                if (loc[1] < screenHeight * 0.4f) return target;
+            }
+        }
+        if (view instanceof ViewGroup group) {
+            for (int i = 0; i < group.getChildCount(); i++) {
+                View found = findViewByLabel(group.getChildAt(i), label);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private static void openMusicChannel(Context context) {
+        try {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_MUSIC_CHANNEL_URL));
-            intent.setPackage(context.getPackageName()); // Open inside this app.
+            intent.setPackage(context.getPackageName());
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             try {
                 context.startActivity(intent);
@@ -531,7 +600,7 @@ public final class NavigationBarPatch {
                 context.startActivity(web);
             }
         } catch (Exception ex) {
-            Logger.printException(() -> "openYouTubeMusic failure", ex);
+            Logger.printException(() -> "openMusicChannel failure", ex);
         }
     }
 
