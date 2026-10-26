@@ -515,6 +515,12 @@ public final class FlyoutUtils {
                 );
             }
 
+            nextButtonIndex = app.morphe.extension.youtube.patches.DownloadFlyoutButton.addFlyoutButton(
+                    flyoutPanel,
+                    nextButtonIndex,
+                    allButtonsVideoId
+            );
+
             nextButtonIndex = AiSListSubmitDialog.addFlyoutButton(
                     flyoutPanel,
                     nextButtonIndex,
