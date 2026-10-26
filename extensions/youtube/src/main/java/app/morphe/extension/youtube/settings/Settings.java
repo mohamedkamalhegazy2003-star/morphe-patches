@@ -563,6 +563,7 @@ public class Settings extends SharedYouTubeSettings {
     public static final IntegerSetting SHOW_SEARCH_BUTTON_INDEX = new IntegerSetting("morphe_show_search_button_index", 4, true, parent(SHOW_SEARCH_BUTTON));
     public static final BooleanSetting SHOW_SETTINGS_BUTTON = new BooleanSetting("morphe_show_settings_button", FALSE, true, parentNot(HIDE_NAVIGATION_BAR));
     public static final IntegerSetting SHOW_SETTINGS_BUTTON_INDEX = new IntegerSetting("morphe_show_settings_button_index", 5, true, parent(SHOW_SETTINGS_BUTTON));
+    public static final BooleanSetting SHOW_MUSIC_TAB = new BooleanSetting("morphe_show_music_tab", TRUE, true, false);
     public static final BooleanSetting SHOW_SETTINGS_BUTTON_TYPE = new BooleanSetting("morphe_show_settings_button_type", FALSE, true, parent(SHOW_SETTINGS_BUTTON));
     public static final BooleanSetting HIDE_NAVIGATION_BUTTON_LABELS = new BooleanSetting("morphe_hide_navigation_button_labels", FALSE, true, parentNot(HIDE_NAVIGATION_BAR));
     public static final BooleanSetting DISABLE_ICON_ONLY_NAVIGATION_BUTTONS = new BooleanSetting("morphe_disable_icon_only_navigation_buttons", TRUE, true, parentNot(HIDE_NAVIGATION_BAR));
@@ -776,6 +777,7 @@ public class Settings extends SharedYouTubeSettings {
     // Migration
     private static final BooleanSetting SHORTS_FLYOUT_SETTINGS_MIGRATED = new BooleanSetting("morphe_shorts_flyout_settings_migrated", FALSE, false, false);
     private static final BooleanSetting COBALT_MODE_FORCED = new BooleanSetting("morphe_ytdlnis_mode_forced", FALSE, false, false);
+    private static final BooleanSetting MUSIC_TAB_APPLIED = new BooleanSetting("morphe_music_tab_applied", FALSE, false, false);
     private static final BooleanSetting AUDIO_DISPLAY_DEFAULTS_APPLIED = new BooleanSetting("morphe_audio_display_defaults_applied", FALSE, false, false);
     private static final BooleanSetting DOWNLOAD_BUTTON_OVERRIDE_MIGRATED = new BooleanSetting("morphe_download_button_override_migrated", FALSE, false, false);
     private static final EnumSetting<ThumbnailOption> DEPRECATED_ALT_THUMBNAIL_HOME = new EnumSetting<>("morphe_alt_thumbnail_home", ThumbnailOption.ORIGINAL);
@@ -918,6 +920,12 @@ public class Settings extends SharedYouTubeSettings {
         migrateForceCodecToVideoCodec();
         migrateShortsFlyoutSettings();
         migrateDownloadButtonOverride();
+        // One time: show a Music tab (it uses the navigation bar settings tab) between Home and Shorts.
+        if (!MUSIC_TAB_APPLIED.get()) {
+            SHOW_SETTINGS_BUTTON.save(true);
+            SHOW_SETTINGS_BUTTON_INDEX.save(1);
+            MUSIC_TAB_APPLIED.save(true);
+        }
         // One time: 120 Hz refresh rate (the closest supported rate is used) and cleaner audio (no dynamic range compression).
         if (!AUDIO_DISPLAY_DEFAULTS_APPLIED.get()) {
             APP_REFRESH_RATE.save("120");

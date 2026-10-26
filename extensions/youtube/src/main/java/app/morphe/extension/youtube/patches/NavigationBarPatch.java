@@ -137,7 +137,9 @@ public final class NavigationBarPatch {
 
         if (SHOW_SETTINGS_BUTTON && button == NavigationBar.NavigationButton.SETTINGS) {
             Utils.runOnMainThread(() -> tabView.setOnClickListener(v -> {
-                if (SHOW_SETTINGS_BUTTON_TYPE) {
+                if (SHOW_MUSIC_TAB) {
+                    openYouTubeMusic(v.getContext());
+                } else if (SHOW_SETTINGS_BUTTON_TYPE) {
                     openMorpheSettings(v);
                 } else {
                     openYouTubeSettings(v);
@@ -375,6 +377,7 @@ public final class NavigationBarPatch {
     private static final boolean SHOW_SETTINGS_BUTTON = Settings.SHOW_SETTINGS_BUTTON.get();
     private static final IntegerSetting SHOW_SETTINGS_BUTTON_INDEX = Settings.SHOW_SETTINGS_BUTTON_INDEX;
     private static final boolean SHOW_SETTINGS_BUTTON_TYPE = Settings.SHOW_SETTINGS_BUTTON_TYPE.get();
+    private static final boolean SHOW_MUSIC_TAB = Settings.SHOW_MUSIC_TAB.get();
 
     private static Object pivotBarSettingsRenderer = null;
 
@@ -511,6 +514,28 @@ public final class NavigationBarPatch {
         return newList;
     }
 
+    private static void openYouTubeMusic(Context context) {
+        try {
+            String custom = Settings.CUSTOM_MUSIC_PACKAGE_NAME.get().trim();
+            String[] packages = custom.isEmpty()
+                    ? new String[]{"com.google.android.apps.youtube.music", "app.morphe.android.apps.youtube.music"}
+                    : new String[]{custom};
+            for (String pkg : packages) {
+                Intent launch = context.getPackageManager().getLaunchIntentForPackage(pkg);
+                if (launch != null) {
+                    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(launch);
+                    return;
+                }
+            }
+            Intent web = new Intent(Intent.ACTION_VIEW, Uri.parse("https://music.youtube.com/"));
+            web.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(web);
+        } catch (Exception ex) {
+            Logger.printException(() -> "openYouTubeMusic failure", ex);
+        }
+    }
+
     @Nullable
     public static byte[] parseSettingsPivotBarItemRenderer(MessageLite messageLite) {
         if (SHOW_SETTINGS_BUTTON) {
@@ -519,10 +544,12 @@ public final class NavigationBarPatch {
                 var iconName = pivotBarItemBuilder.getIcon().getYtIconType().name();
 
                 if (NavigationBar.NavigationButton.HOME.ytEnumNames.contains(iconName)) {
-                    var newAccessibilityData = AccessibilityData.newBuilder().setLabel(str("menu_settings")).build();
+                    var newAccessibilityData = AccessibilityData.newBuilder()
+                            .setLabel(SHOW_MUSIC_TAB ? "Music" : str("menu_settings")).build();
                     var newAccessibility = Accessibility.newBuilder().setAccessibilityData(newAccessibilityData).build();
 
-                    var newIcon = Icon.newBuilder().setYtIconType(YTIconType.SETTINGS_CAIRO).build();
+                    var newIcon = Icon.newBuilder().setYtIconType(
+                            SHOW_MUSIC_TAB ? YTIconType.MUSIC : YTIconType.SETTINGS_CAIRO).build();
 
                     pivotBarItemBuilder.clearAccessibility();
                     pivotBarItemBuilder.setAccessibility(newAccessibility);
