@@ -37,6 +37,7 @@ public final class ShortsDownloadButton {
         try {
             activityRef = new WeakReference<>(activity);
             button = null; // A new activity needs a new view.
+            LensSearchButton.initialize(activity);
             if (!observerAdded) {
                 observerAdded = true;
                 ShortsPlayerState.getOnChange().addObserver((Boolean open) -> {
@@ -49,6 +50,11 @@ public final class ShortsDownloadButton {
         }
     }
 
+    private static final long VISIBLE_MILLIS = 5000;
+    private static long hideAtMillis;
+    private static String lastVideoId = "";
+    private static boolean polling;
+
     private static void update(boolean open) {
         try {
             Activity activity = activityRef.get();
@@ -59,11 +65,51 @@ public final class ShortsDownloadButton {
                 button = createButton(activity);
                 activity.addContentView(button, buttonLayoutParams(activity));
             }
-            button.setVisibility(open ? View.VISIBLE : View.GONE);
-            if (open) button.bringToFront();
+            if (open) {
+                showFor5Seconds();
+                startPolling();
+            } else {
+                button.setVisibility(View.GONE);
+            }
         } catch (Exception ex) {
             Logger.printException(() -> "ShortsDownloadButton update failure", ex);
         }
+    }
+
+    private static void showFor5Seconds() {
+        if (button == null) return;
+        button.setVisibility(View.VISIBLE);
+        button.bringToFront();
+        hideAtMillis = System.currentTimeMillis() + VISIBLE_MILLIS;
+    }
+
+    /** Shows the button again for 5 seconds each time a new Short starts. */
+    private static void startPolling() {
+        if (polling) return;
+        polling = true;
+        Utils.runOnMainThreadDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (!ShortsPlayerState.isOpen() || button == null) {
+                        polling = false;
+                        return;
+                    }
+                    String id = VideoInformation.getVideoId();
+                    if (id != null && !id.equals(lastVideoId)) {
+                        lastVideoId = id;
+                        showFor5Seconds();
+                    }
+                    if (System.currentTimeMillis() >= hideAtMillis) {
+                        button.setVisibility(View.GONE);
+                    }
+                    Utils.runOnMainThreadDelayed(this, 500);
+                } catch (Exception ex) {
+                    polling = false;
+                    Logger.printException(() -> "ShortsDownloadButton polling failure", ex);
+                }
+            }
+        }, 500);
     }
 
     private static TextView createButton(Activity activity) {
@@ -76,7 +122,10 @@ public final class ShortsDownloadButton {
         bg.setShape(GradientDrawable.OVAL);
         bg.setColor(0x99000000);
         tv.setBackground(bg);
-        tv.setOnClickListener(v -> download(activity));
+        tv.setOnClickListener(v -> {
+            hideAtMillis = System.currentTimeMillis() + VISIBLE_MILLIS;
+            download(activity);
+        });
         return tv;
     }
 
