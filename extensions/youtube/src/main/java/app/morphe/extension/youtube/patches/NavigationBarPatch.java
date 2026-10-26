@@ -514,23 +514,22 @@ public final class NavigationBarPatch {
         return newList;
     }
 
+    /** Official YouTube "Music" channel (the Music section of YouTube). */
+    private static final String YOUTUBE_MUSIC_CHANNEL_URL =
+            "https://www.youtube.com/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ";
+
     private static void openYouTubeMusic(Context context) {
         try {
-            String custom = Settings.CUSTOM_MUSIC_PACKAGE_NAME.get().trim();
-            String[] packages = custom.isEmpty()
-                    ? new String[]{"com.google.android.apps.youtube.music", "app.morphe.android.apps.youtube.music"}
-                    : new String[]{custom};
-            for (String pkg : packages) {
-                Intent launch = context.getPackageManager().getLaunchIntentForPackage(pkg);
-                if (launch != null) {
-                    launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(launch);
-                    return;
-                }
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_MUSIC_CHANNEL_URL));
+            intent.setPackage(context.getPackageName()); // Open inside this app.
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                context.startActivity(intent);
+            } catch (Exception inAppFailure) {
+                Intent web = new Intent(Intent.ACTION_VIEW, Uri.parse(YOUTUBE_MUSIC_CHANNEL_URL));
+                web.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(web);
             }
-            Intent web = new Intent(Intent.ACTION_VIEW, Uri.parse("https://music.youtube.com/"));
-            web.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(web);
         } catch (Exception ex) {
             Logger.printException(() -> "openYouTubeMusic failure", ex);
         }
