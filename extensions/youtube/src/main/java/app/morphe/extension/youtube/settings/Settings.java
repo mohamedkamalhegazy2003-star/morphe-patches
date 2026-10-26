@@ -775,7 +775,7 @@ public class Settings extends SharedYouTubeSettings {
 
     // Migration
     private static final BooleanSetting SHORTS_FLYOUT_SETTINGS_MIGRATED = new BooleanSetting("morphe_shorts_flyout_settings_migrated", FALSE, false, false);
-    private static final BooleanSetting COBALT_MODE_FORCED = new BooleanSetting("morphe_cobalt_mode_forced", FALSE, false, false);
+    private static final BooleanSetting COBALT_MODE_FORCED = new BooleanSetting("morphe_ytdlnis_mode_forced", FALSE, false, false);
     private static final BooleanSetting DOWNLOAD_BUTTON_OVERRIDE_MIGRATED = new BooleanSetting("morphe_download_button_override_migrated", FALSE, false, false);
     private static final EnumSetting<ThumbnailOption> DEPRECATED_ALT_THUMBNAIL_HOME = new EnumSetting<>("morphe_alt_thumbnail_home", ThumbnailOption.ORIGINAL);
     private static final EnumSetting<ThumbnailOption> DEPRECATED_ALT_THUMBNAIL_SUBSCRIPTIONS = new EnumSetting<>("morphe_alt_thumbnail_subscription", ThumbnailOption.ORIGINAL);
@@ -917,9 +917,9 @@ public class Settings extends SharedYouTubeSettings {
         migrateForceCodecToVideoCodec();
         migrateShortsFlyoutSettings();
         migrateDownloadButtonOverride();
-        // One time: use the Cobalt download mode, even if an older mode was saved before.
+        // One time: use the external downloader (YTDLnis) mode, even if an older mode was saved before.
         if (!COBALT_MODE_FORCED.get()) {
-            DOWNLOAD_MODE.save(DownloadMode.COBALT);
+            DOWNLOAD_MODE.save(DownloadMode.EXTERNAL);
             COBALT_MODE_FORCED.save(true);
         }
 
