@@ -60,7 +60,12 @@ public final class LensSearchButton {
         CharSequence hint = edit.getHint();
         CharSequence desc = edit.getContentDescription();
         String text = ((hint != null ? hint : "") + " " + (desc != null ? desc : "")).toLowerCase();
-        return text.contains("search") || text.contains("\u0628\u062d\u062b");
+        // Any text box that is not a comment, reply or chat box is treated as the search box.
+        String[] excluded = {"comment", "reply", "chat", "add a", "\u062a\u0639\u0644\u064a\u0642", "\u0631\u062f"};
+        for (String word : excluded) {
+            if (text.contains(word)) return false;
+        }
+        return true;
     }
 
     private static boolean isKeyboardVisible(View decor) {

@@ -660,7 +660,7 @@ public final class NavigationBar {
         /**
          * Only shown when 'Show Settings' is turned on.
          */
-        SETTINGS("SETTINGS", "SETTINGS_CAIRO"),
+        SETTINGS("SETTINGS", "SETTINGS_CAIRO", "MUSIC"),
         /**
          * Only shown when 'Show Series in navigation bar' is turned on.
          */
