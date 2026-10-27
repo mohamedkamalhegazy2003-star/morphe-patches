@@ -67,15 +67,47 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
         }
     }
 
+    /**
+     * Entry point of every download button. In the external downloader mode the user picks the engine.
+     */
     public static void launchExternalDownloader(String videoId, @Nullable Context context, String url) {
         try {
             Objects.requireNonNull(videoId);
             if (context == null) {
                 context = Utils.getActivity();
             }
-            if (SharedYouTubeSettings.DOWNLOAD_MODE.get() == DownloadMode.COBALT) {
-                app.morphe.extension.shared.patches.CobaltDownloader.download(context, url);
+            final Context ctx = context;
+            DownloadMode mode = SharedYouTubeSettings.DOWNLOAD_MODE.get();
+            if (mode == DownloadMode.COBALT) {
+                app.morphe.extension.shared.patches.CobaltDownloader.download(ctx, url);
                 return;
+            }
+            if (mode == DownloadMode.EXTERNAL && ctx instanceof Activity activity) {
+                final String[] engines = {"YTDLnis (fast, all formats)", "Cobalt (inside the app)"};
+                Utils.runOnMainThread(() -> new android.app.AlertDialog.Builder(activity)
+                        .setTitle("Download with")
+                        .setItems(engines, (d, which) -> {
+                            if (which == 0) {
+                                launchExternalApp(videoId, ctx, url);
+                            } else {
+                                app.morphe.extension.shared.patches.CobaltDownloader.download(ctx, url);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show());
+                return;
+            }
+            launchExternalApp(videoId, ctx, url);
+        } catch (Exception ex) {
+            Logger.printException(() -> "launchExternalDownloader failure", ex);
+        }
+    }
+
+    private static void launchExternalApp(String videoId, @Nullable Context context, String url) {
+        try {
+            Objects.requireNonNull(videoId);
+            if (context == null) {
+                context = Utils.getActivity();
             }
             Context contextFinal = context;
             Logger.printDebug(() -> "Launching external downloader: " + videoId + " context: " + contextFinal);

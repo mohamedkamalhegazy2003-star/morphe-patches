@@ -39,6 +39,7 @@ public final class ShortsDownloadButton {
             button = null; // A new activity needs a new view.
             LensSearchButton.initialize(activity);
             FastAnimationsPatch.apply();
+            MusicModePlayer.initialize(activity);
             if (!observerAdded) {
                 observerAdded = true;
                 ShortsPlayerState.getOnChange().addObserver((Boolean open) -> {
