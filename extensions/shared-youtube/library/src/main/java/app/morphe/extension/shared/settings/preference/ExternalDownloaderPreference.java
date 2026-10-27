@@ -67,8 +67,6 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
         }
     }
 
-    private static final String SEAL_PACKAGE_NAME = "com.junkfood.seal";
-
     /**
      * Entry point of every download button. The user picks the download engine.
      */
@@ -81,11 +79,16 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
             final Context ctx = context;
             final String ytdlnis = SharedYouTubeSettings.EXTERNAL_DOWNLOADER_PACKAGE_NAME.get().trim();
             if (ctx instanceof Activity activity) {
-                final String[] engines = {"YTDLnis (fast, all formats)", "Seal (high quality, all formats)"};
+                final String[] engines = {"YTDLnis (fast, all formats)", "In-app downloader (inside Youtube M.H)"};
                 Utils.runOnMainThread(() -> new android.app.AlertDialog.Builder(activity)
                         .setTitle("Download with")
-                        .setItems(engines, (d, which) ->
-                                launchExternalApp(videoId, ctx, url, which == 0 ? ytdlnis : SEAL_PACKAGE_NAME))
+                        .setItems(engines, (d, which) -> {
+                            if (which == 0) {
+                                launchExternalApp(videoId, ctx, url, ytdlnis);
+                            } else {
+                                app.morphe.extension.shared.patches.InAppDownloader.download(activity, videoId);
+                            }
+                        })
                         .setNegativeButton(android.R.string.cancel, null)
                         .show());
                 return;

@@ -126,6 +126,13 @@ public class StreamingDataRequest {
      */
     private static volatile boolean authHeadersOverrides;
 
+    /** @return The user agent of the client that answered the last request, or null. */
+    @Nullable
+    public static String getLastSpoofedClientUserAgent() {
+        ClientType client = lastSpoofedClientType;
+        return client == null ? null : client.userAgent;
+    }
+
     public static String getLastSpoofedClientName() {
         ClientType client = lastSpoofedClientType;
         if (client == null) {
