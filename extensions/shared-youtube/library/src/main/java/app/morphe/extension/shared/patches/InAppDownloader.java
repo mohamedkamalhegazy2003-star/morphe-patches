@@ -112,7 +112,7 @@ public final class InAppDownloader {
             downloadFile(audio.url, a, "Audio");
             saveToMediaStore(context, a, name + ".m4a", "audio/mp4", false);
             a.delete();
-            Utils.runOnMainThread(() -> Utils.showToastLong("Saved in Music/Youtube M.H"));
+            Utils.runOnMainThread(() -> Utils.showToastLong("Saved. Open it from Download > My downloads"));
             return;
         }
 
@@ -132,7 +132,7 @@ public final class InAppDownloader {
             Utils.runOnMainThread(() -> Utils.showToastShort("Joining video and audio..."));
             mux(v, a, out);
             saveToMediaStore(context, out, name + ".mp4", "video/mp4", true);
-            Utils.runOnMainThread(() -> Utils.showToastLong("Saved in Movies/Youtube M.H"));
+            Utils.runOnMainThread(() -> Utils.showToastLong("Saved. Open it from Download > My downloads"));
         } finally {
             v.delete();
             a.delete();

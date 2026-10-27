@@ -79,12 +79,14 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
             final Context ctx = context;
             final String ytdlnis = SharedYouTubeSettings.EXTERNAL_DOWNLOADER_PACKAGE_NAME.get().trim();
             if (ctx instanceof Activity activity) {
-                final String[] engines = {"YTDLnis (fast, all formats)", "In-app downloader (inside Youtube M.H)"};
+                final String[] engines = {"YTDLnis (fast, all formats)", "In-app downloader (inside Youtube M.H)", "My downloads"};
                 Utils.runOnMainThread(() -> new android.app.AlertDialog.Builder(activity)
                         .setTitle("Download with")
                         .setItems(engines, (d, which) -> {
                             if (which == 0) {
                                 launchExternalApp(videoId, ctx, url, ytdlnis);
+                            } else if (which == 2) {
+                                app.morphe.extension.shared.patches.MyDownloads.show(activity);
                             } else {
                                 app.morphe.extension.shared.patches.InAppDownloader.download(activity, videoId);
                             }
