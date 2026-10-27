@@ -56,10 +56,6 @@ private val downloadsResourcePatch = resourcePatch {
                 preferences = setOf(
                     ListPreference("morphe_download_mode"),
                     SwitchPreference("morphe_external_downloader_overlay_button", summary = true),
-                    SwitchPreference("morphe_cobalt_ask_format"),
-                    TextPreference("morphe_cobalt_instance"),
-                    TextPreference("morphe_cobalt_api_key"),
-                    TextPreference("morphe_cobalt_quality"),
                     TextPreference(
                         "morphe_external_downloader_name",
                         tag = "app.morphe.extension.shared.settings.preference.ExternalDownloaderPreference",

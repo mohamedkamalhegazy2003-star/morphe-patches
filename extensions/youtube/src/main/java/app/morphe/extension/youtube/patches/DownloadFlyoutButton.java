@@ -38,8 +38,8 @@ public final class DownloadFlyoutButton {
 
     private static void download(String videoId) {
         DownloadMode mode = SharedYouTubeSettings.DOWNLOAD_MODE.get();
-        if (mode != DownloadMode.COBALT && mode != DownloadMode.EXTERNAL) {
-            Utils.showToastLong("Set Download mode to Cobalt or External downloader");
+        if (mode != DownloadMode.EXTERNAL) {
+            Utils.showToastLong("Set Download mode to External downloader");
             return;
         }
         ExternalDownloaderPreference.launchExternalDownloader(

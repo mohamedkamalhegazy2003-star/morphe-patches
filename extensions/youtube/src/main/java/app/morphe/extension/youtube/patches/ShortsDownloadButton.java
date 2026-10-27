@@ -39,7 +39,6 @@ public final class ShortsDownloadButton {
             button = null; // A new activity needs a new view.
             LensSearchButton.initialize(activity);
             FastAnimationsPatch.apply();
-            MusicModePlayer.initialize(activity);
             if (!observerAdded) {
                 observerAdded = true;
                 ShortsPlayerState.getOnChange().addObserver((Boolean open) -> {
@@ -149,8 +148,8 @@ public final class ShortsDownloadButton {
                 return;
             }
             DownloadMode mode = SharedYouTubeSettings.DOWNLOAD_MODE.get();
-            if (mode != DownloadMode.COBALT && mode != DownloadMode.EXTERNAL) {
-                Utils.showToastLong("Set Download mode to Cobalt or External downloader");
+            if (mode != DownloadMode.EXTERNAL) {
+                Utils.showToastLong("Set Download mode to External downloader");
                 return;
             }
             ExternalDownloaderPreference.launchExternalDownloader(

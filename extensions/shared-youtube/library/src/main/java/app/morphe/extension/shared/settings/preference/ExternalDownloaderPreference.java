@@ -67,8 +67,10 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
         }
     }
 
+    private static final String SEAL_PACKAGE_NAME = "com.junkfood.seal";
+
     /**
-     * Entry point of every download button. In the external downloader mode the user picks the engine.
+     * Entry point of every download button. The user picks the download engine.
      */
     public static void launchExternalDownloader(String videoId, @Nullable Context context, String url) {
         try {
@@ -77,33 +79,24 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
                 context = Utils.getActivity();
             }
             final Context ctx = context;
-            DownloadMode mode = SharedYouTubeSettings.DOWNLOAD_MODE.get();
-            if (mode == DownloadMode.COBALT) {
-                app.morphe.extension.shared.patches.CobaltDownloader.download(ctx, url);
-                return;
-            }
-            if (mode == DownloadMode.EXTERNAL && ctx instanceof Activity activity) {
-                final String[] engines = {"YTDLnis (fast, all formats)", "Cobalt (inside the app)"};
+            final String ytdlnis = SharedYouTubeSettings.EXTERNAL_DOWNLOADER_PACKAGE_NAME.get().trim();
+            if (ctx instanceof Activity activity) {
+                final String[] engines = {"YTDLnis (fast, all formats)", "Seal (high quality, all formats)"};
                 Utils.runOnMainThread(() -> new android.app.AlertDialog.Builder(activity)
                         .setTitle("Download with")
-                        .setItems(engines, (d, which) -> {
-                            if (which == 0) {
-                                launchExternalApp(videoId, ctx, url);
-                            } else {
-                                app.morphe.extension.shared.patches.CobaltDownloader.download(ctx, url);
-                            }
-                        })
+                        .setItems(engines, (d, which) ->
+                                launchExternalApp(videoId, ctx, url, which == 0 ? ytdlnis : SEAL_PACKAGE_NAME))
                         .setNegativeButton(android.R.string.cancel, null)
                         .show());
                 return;
             }
-            launchExternalApp(videoId, ctx, url);
+            launchExternalApp(videoId, ctx, url, ytdlnis);
         } catch (Exception ex) {
             Logger.printException(() -> "launchExternalDownloader failure", ex);
         }
     }
 
-    private static void launchExternalApp(String videoId, @Nullable Context context, String url) {
+    private static void launchExternalApp(String videoId, @Nullable Context context, String url, String downloaderPackageName) {
         try {
             Objects.requireNonNull(videoId);
             if (context == null) {
@@ -112,8 +105,7 @@ public class ExternalDownloaderPreference extends CustomDialogListPreference {
             Context contextFinal = context;
             Logger.printDebug(() -> "Launching external downloader: " + videoId + " context: " + contextFinal);
 
-            // Trim string to avoid any accidental whitespace.
-            var downloaderPackageName = SharedYouTubeSettings.EXTERNAL_DOWNLOADER_PACKAGE_NAME.get().trim();
+            downloaderPackageName = downloaderPackageName.trim();
 
             // If the package is not installed, show a dialog.
             if (showDialogIfAppIsNotInstalled(context, downloaderPackageName)) {
